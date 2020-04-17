@@ -6,11 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const playerColor = document.querySelector(".player-color");
   const playerOneWins = [];
   const playerTwoWins = [];
-
   let currentPlayer = 1;
-
   let resetTimeout;
-
   class Cell {
     constructor(x, y, ref) {
       this.ref = ref;
@@ -19,16 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
       this.owner = null;
     }
     getDirection(dir, grid, owner) {
-      if (owner !== this.owner) return 0;
-      let next = grid[this.x + dir[0]][this.y + dir[1]];
-      console.warn(this.x, this.y, dir, next);
-
-      return 1 + (next ? next.getDirection(dir, grid, owner) : 0);
+      let next = (grid[this.x + dir[0]] || [])[this.y + dir[1]];
+      if (!next || owner !== next.owner) return 0;
+      return 1 + next.getDirection(dir, grid, owner);
     }
   }
-
   let data = new Array(6).fill(1).map((e) => new Array(7));
-
   for (let index = 0; index < squares.length - 7; index++) {
     const ref = squares[index];
     var x = parseInt(index / 7);
@@ -37,9 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ref.setAttribute("y", y);
     data[x][y] = new Cell(x, y, ref); //{ ref };
   }
-
   console.table(data);
-
   squares.forEach((square, index) => {
     square.addEventListener("click", () => {
       if (
@@ -57,15 +48,29 @@ document.addEventListener("DOMContentLoaded", () => {
             displayCurrentPlayer.innerHTML = currentPlayer;
             let x = Number(squares[index].getAttribute("x"));
             let y = Number(squares[index].getAttribute("y"));
-
             data[x][y].owner = "player-one";
-            let top = data[x + 1]
-              ? data[x + 1][y].getDirection([0, 1], data, "player-one")
-              : 0;
-            let bottom = data[x - 1]
-              ? data[x - 1][y].getDirection([0, -1], data, "player-one")
-              : 0;
-            console.log(top + bottom + 1);
+            let top = data[x][y].getDirection([1, 0], data, "player-one");
+            let bottom = data[x][y].getDirection([-1, 0], data, "player-one");
+            let left = data[x][y].getDirection([0, 1], data, "player-one");
+            let right = data[x][y].getDirection([0, -1], data, "player-one");
+            let topLeft = data[x][y].getDirection([1, 1], data, "player-one");
+            let bottomRight = data[x][y].getDirection(
+              [-1, -1],
+              data,
+              "player-one"
+            );
+            let topRight = data[x][y].getDirection([1, -1], data, "player-one");
+            let bottomLeft = data[x][y].getDirection(
+              [-1, 1],
+              data,
+              "player-one"
+            );
+            console.log(
+              top + bottom + 1,
+              left + right + 1,
+              topLeft + bottomRight + 1,
+              topRight + bottomLeft + 1
+            );
           } else if (currentPlayer === 2) {
             playerTwoWins.push(index);
             square.classList.add("taken");
@@ -88,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
   // function checkBoard() {
   //   if (resetTimeout) return;
   //   const winningArrays = [
@@ -162,13 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
   //     [12, 19, 26, 33],
   //     [13, 20, 27, 34],
   //   ];
-
   //   for (let y = 0; y < winningArrays.length; y++) {
   //     const square1 = squares[winningArrays[y][0]];
   //     const square2 = squares[winningArrays[y][1]];
   //     const square3 = squares[winningArrays[y][2]];
   //     const square4 = squares[winningArrays[y][3]];
-
   //     if (
   //       square1.classList.contains("player-one") &&
   //       square2.classList.contains("player-one") &&
@@ -181,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
   //       displayCurrentPlayer.innerHTML = currentPlayer;
   //       resetTimeout = setTimeout(() => {
   //         result.innerHTML = "";
-
   //         squares.forEach((square, index) => {
   //           resetTimeout = null;
   //           square.classList.remove("taken", "player-one", "player-two");
@@ -206,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //         result.innerHTML = "";
   //         squares.forEach((square, index) => {
   //           square.classList.remove("taken", "player-one", "player-two");
-  //           if (index > squares.length - 8) {
+  //           if (index > squares.length - 8{
   //             square.classList.add("taken");
   //           }
   //           error.style.display = "block";
@@ -215,6 +216,5 @@ document.addEventListener("DOMContentLoaded", () => {
   //     }
   //   }
   // }
-
   // squares.forEach((square) => square.addEventListener("click", checkBoard));
 });
