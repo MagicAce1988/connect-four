@@ -11,33 +11,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let resetTimeout;
 
+  class Cell {
+    constructor(x, y, ref) {
+      this.ref = ref;
+      this.x = x;
+      this.y = y;
+      this.owner = null;
+    }
+    getDirection(dir, grid, owner) {
+      if (owner !== this.owner) return 0;
+      let next = grid[this.x + dir[0]][this.y + dir[1]];
+      console.warn(this.x, this.y, dir, next);
+
+      return 1 + (next ? next.getDirection(dir, grid, owner) : 0);
+    }
+  }
+
   let data = new Array(6).fill(1).map((e) => new Array(7));
 
   for (let index = 0; index < squares.length - 7; index++) {
     const ref = squares[index];
-    var y = parseInt(index / 7);
-    var x = index % 7;
-    console.log(y, x);
+    var x = parseInt(index / 7);
+    var y = index % 7;
     ref.setAttribute("x", x);
     ref.setAttribute("y", y);
-    data[y][x] = { ref };
+    data[x][y] = new Cell(x, y, ref); //{ ref };
   }
 
   console.table(data);
-
-  const checkFourConsecutives = (array) => {
-    for (let i = 0; i < array.length; i++) {
-      if (
-        array[i] + array[i + 1] + array[i + 2] + array[i + 3] ===
-        array[i] * 4 + 6
-      ) {
-        if (array[i] % 7 < array[i + 3] % 7) {
-          return true;
-        } else return false;
-      }
-    }
-    return false;
-  };
 
   squares.forEach((square, index) => {
     square.addEventListener("click", () => {
@@ -54,27 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
             playerColor.classList.add("player-two");
             currentPlayer = 2;
             displayCurrentPlayer.innerHTML = currentPlayer;
-            console.log(
-              playerOneWins.sort(function (a, b) {
-                return a - b;
-              })
-            );
-            if (
-              checkFourConsecutives(
-                playerOneWins.sort(function (a, b) {
-                  return a - b;
-                })
-              )
-            ) {
-              result.innerHTML = "Player One wins!";
-            }
-            if (
-              playerOneWins.filter((item) =>
-                [index + 7, index + 14, index + 21].includes(item)
-              ).length === 3
-            ) {
-              result.innerHTML = "Player One wins!";
-            }
+            let x = Number(squares[index].getAttribute("x"));
+            let y = Number(squares[index].getAttribute("y"));
+
+            data[x][y].owner = "player-one";
+            let top = data[x + 1]
+              ? data[x + 1][y].getDirection([0, 1], data, "player-one")
+              : 0;
+            let bottom = data[x - 1]
+              ? data[x - 1][y].getDirection([0, -1], data, "player-one")
+              : 0;
+            console.log(top + bottom + 1);
           } else if (currentPlayer === 2) {
             playerTwoWins.push(index);
             square.classList.add("taken");
@@ -83,27 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
             playerColor.classList.add("player-one");
             currentPlayer = 1;
             displayCurrentPlayer.innerHTML = currentPlayer;
-            console.log(
-              playerTwoWins.sort(function (a, b) {
-                return a - b;
-              })
-            );
-            if (
-              checkFourConsecutives(
-                playerTwoWins.sort(function (a, b) {
-                  return a - b;
-                })
-              )
-            ) {
-              result.innerHTML = "Player Two wins!";
-            }
-            if (
-              playerTwoWins.filter((item) =>
-                [index + 7, index + 14, index + 21].includes(item)
-              ).length === 3
-            ) {
-              result.innerHTML = "Player Two wins!";
-            }
+            let x2 = Number(squares[index].getAttribute("x"));
+            let y2 = Number(squares[index].getAttribute("y"));
           }
         }
       } else {
