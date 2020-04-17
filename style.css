@@ -6,6 +6,36 @@ body {
   text-align: center;
 }
 
+.dimensions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.instructions {
+  flex: 0 1 100%;
+}
+
+.width {
+  margin-left: 5px;
+  width: 40px;
+  outline: none;
+}
+.height {
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 40px;
+  outline: none;
+}
+
+.submit {
+  margin-left: 5px;
+  outline: none;
+}
+
 .title {
   margin-bottom: 0;
   padding-bottom: 0;
@@ -29,7 +59,7 @@ body {
   width: 280px;
 }
 
-.grid div {
+.cell {
   height: 40px;
   width: 40px;
 }
