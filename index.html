@@ -14,10 +14,24 @@
         Please decide on the dimensions before starting the game!
       </h4>
       <label for="height">Number of rows:</label
-      ><input type="number" name="height" class="height" />
+      ><input
+        type="number"
+        min="4"
+        max="50"
+        valuename="height"
+        class="height"
+      />
       <label for="width">Number of columns:</label
-      ><input type="number" name="width" class="width" />
+      ><input type="number" min="4" max="50" valuename="width" class="width" />
       <input type="submit" class="submit" value="Send Dimensions" />
+    </div>
+    <div class="alert">
+      <span
+        class="closebtn"
+        onclick="this.parentElement.style.height=0; this.parentElement.style.padding=0;"
+        >&times;</span
+      >
+      <strong>Sorry!</strong> You can only specify dimensions higher than 4.
     </div>
     <h3 class="about-player">
       The current player is: Player <span id="current-player"> 1</span
