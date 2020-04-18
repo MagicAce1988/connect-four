@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector(".grid");
-  var squares = document.querySelectorAll(".grid div");
   const result = document.querySelector("#result");
   const displayCurrentPlayer = document.querySelector("#current-player");
   const error = document.querySelector(".error");
   const playerColor = document.querySelector(".player-color");
   let currentPlayer = 1;
   const submit = document.querySelector(".submit");
-  let heightValue, widthValue;
+  let heightValue, widthValue, squares, data;
 
   class Cell {
     constructor(x, y, ref) {
@@ -24,17 +23,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  let data = new Array(6).fill(1).map((e) => new Array(7));
-  for (let index = 0; index < squares.length - 7; index++) {
-    const ref = squares[index];
-    var x = parseInt(index / 7);
-    var y = index % 7;
-    ref.setAttribute("x", x);
-    ref.setAttribute("y", y);
-    data[x][y] = new Cell(x, y, ref); //{ ref };
-  }
+  const runGame = (gridWidth, gridHeight) => {
+    squares = document.querySelectorAll(".grid div");
+    data = new Array(gridHeight).fill(1).map((e) => new Array(gridWidth));
+    for (let index = 0; index < squares.length - gridWidth; index++) {
+      const ref = squares[index];
+      let x = parseInt(index / gridWidth);
+      let y = index % gridWidth;
+      ref.setAttribute("x", x);
+      ref.setAttribute("y", y);
+      data[x][y] = new Cell(x, y, ref); //{ ref };
+    }
+
+    squares.forEach((square, index) => {
+      square.addEventListener("click", () => {
+        if (
+          squares[index + gridWidth].classList.contains("taken") &&
+          !square.classList.contains("taken")
+        ) {
+          if (result.innerHTML.length < 1) {
+            if (currentPlayer === 1) {
+              square.classList.add("taken");
+              square.classList.add("player-one");
+              playerColor.classList.remove("player-one");
+              playerColor.classList.add("player-two");
+              checkWin(index, currentPlayer);
+              currentPlayer = 2;
+              displayCurrentPlayer.innerHTML = currentPlayer;
+            } else if (currentPlayer === 2) {
+              square.classList.add("taken");
+              square.classList.add("player-two");
+              playerColor.classList.remove("player-two");
+              playerColor.classList.add("player-one");
+              checkWin(index, currentPlayer);
+              currentPlayer = 1;
+              displayCurrentPlayer.innerHTML = currentPlayer;
+            }
+          }
+        } else {
+          if (result.innerHTML.length < 1) {
+            error.textContent = `You can't go there!`;
+            setTimeout(() => {
+              error.textContent = "";
+            }, 1000);
+          }
+        }
+      });
+    });
+  };
 
   const checkWin = (index, player) => {
+    console.log(index);
     const displayWin = (
       verticalSum,
       horizontalSum,
@@ -125,101 +164,43 @@ document.addEventListener("DOMContentLoaded", () => {
     heightValue = Number(height.value) || 7;
     widthValue = Number(width.value) || 7;
     while (grid.firstChild && grid.removeChild(grid.firstChild));
-    grid.style.height = `${heightValue * 40}px`;
-    grid.style.width = `${widthValue * 40}px`;
+    grid.style.height =
+      heightValue > 10 || widthValue > 10
+        ? heightValue > 20 || widthValue > 20
+          ? `${heightValue * 10}px`
+          : `${heightValue * 20}px`
+        : `${heightValue * 40}px`;
+    grid.style.width =
+      heightValue > 10 || widthValue > 10
+        ? heightValue > 20 || widthValue > 20
+          ? `${widthValue * 10}px`
+          : `${widthValue * 20}px`
+        : `${widthValue * 40}px`;
     for (i = 0; i < heightValue * widthValue; i++) {
       let div = document.createElement("div");
-      div.classList.add("cell");
+      div.classList.add(
+        heightValue > 10 || widthValue > 10
+          ? heightValue > 20 || widthValue > 20
+            ? "verySmallCell"
+            : "smallCell"
+          : "cell"
+      );
       grid.appendChild(div);
     }
     for (i = 0; i < widthValue; i++) {
       let div = document.createElement("div");
       div.classList.add("taken");
-      div.classList.add("cell");
+      div.classList.add(
+        heightValue > 10 || widthValue > 10
+          ? heightValue > 20 || widthValue > 20
+            ? "verySmallCell"
+            : "smallCell"
+          : "cell"
+      );
       grid.appendChild(div);
     }
-    squares = document.querySelectorAll(".grid div");
 
-    data = new Array(heightValue).fill(1).map((e) => new Array(widthValue));
-    for (let index = 0; index < squares.length - widthValue; index++) {
-      const ref = squares[index];
-      let x = parseInt(index / widthValue);
-      let y = index % widthValue;
-      ref.setAttribute("x", x);
-      ref.setAttribute("y", y);
-      data[x][y] = new Cell(x, y, ref); //{ ref };
-    }
-
-    squares.forEach((square, index) => {
-      square.addEventListener("click", () => {
-        if (
-          squares[index + widthValue].classList.contains("taken") &&
-          !square.classList.contains("taken")
-        ) {
-          if (result.innerHTML.length < 1) {
-            if (currentPlayer === 1) {
-              square.classList.add("taken");
-              square.classList.add("player-one");
-              playerColor.classList.remove("player-one");
-              playerColor.classList.add("player-two");
-              checkWin(index, currentPlayer);
-              currentPlayer = 2;
-              displayCurrentPlayer.innerHTML = currentPlayer;
-            } else if (currentPlayer === 2) {
-              square.classList.add("taken");
-              square.classList.add("player-two");
-              playerColor.classList.remove("player-two");
-              playerColor.classList.add("player-one");
-              checkWin(index, currentPlayer);
-              currentPlayer = 1;
-              displayCurrentPlayer.innerHTML = currentPlayer;
-            }
-          }
-        } else {
-          if (result.innerHTML.length < 1) {
-            error.textContent = `You can't go there!`;
-            setTimeout(() => {
-              error.textContent = "";
-            }, 1000);
-          }
-        }
-      });
-    });
+    runGame(widthValue, heightValue);
   });
-
-  squares.forEach((square, index) => {
-    square.addEventListener("click", () => {
-      if (
-        squares[index + 7].classList.contains("taken") &&
-        !square.classList.contains("taken")
-      ) {
-        if (result.innerHTML.length < 1) {
-          if (currentPlayer === 1) {
-            square.classList.add("taken");
-            square.classList.add("player-one");
-            playerColor.classList.remove("player-one");
-            playerColor.classList.add("player-two");
-            checkWin(index, currentPlayer);
-            currentPlayer = 2;
-            displayCurrentPlayer.innerHTML = currentPlayer;
-          } else if (currentPlayer === 2) {
-            square.classList.add("taken");
-            square.classList.add("player-two");
-            playerColor.classList.remove("player-two");
-            playerColor.classList.add("player-one");
-            checkWin(index, currentPlayer);
-            currentPlayer = 1;
-            displayCurrentPlayer.innerHTML = currentPlayer;
-          }
-        }
-      } else {
-        if (result.innerHTML.length < 1) {
-          error.textContent = `You can't go there!`;
-          setTimeout(() => {
-            error.textContent = "";
-          }, 1000);
-        }
-      }
-    });
-  });
+  runGame(7, 6);
 });
