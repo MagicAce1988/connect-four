@@ -9,6 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let heightValue, widthValue, squares, data, animateInterval;
   let currentPlayer = 1;
 
+  const directions = {
+    top: [1, 0, "vertical"],
+    bottom: [-1, 0, "vertical"],
+    left: [0, 1, "hortizontal"],
+    right: [0, -1, "hortizontal"],
+    topLeft: [1, 1, "firstDiagonal"],
+    bottomRight: [-1, -1, "firstDiagonal"],
+    topRight: [1, -1, "secondDiagonal"],
+    bottomLeft: [-1, 1, "secondDiagonal"],
+  };
+
   class Cell {
     constructor(x, y, ref) {
       this.ref = ref;
@@ -16,7 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
       this.y = y;
       this.owner = null;
     }
-    getDirection(dir, grid, owner, all) {
+    getDirection(direction, grid, owner, all) {
+      const dir = directions[direction];
+      console.log(dir);
       let next = (grid[this.x + dir[0]] || [])[this.y + dir[1]];
       if (!next || owner !== next.owner) return 0;
       all.push(next);
@@ -36,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const checkWin = (index, player) => {
-    console.log(index);
     const displayWin = (
       verticalSum,
       horizontalSum,
@@ -74,44 +86,44 @@ document.addEventListener("DOMContentLoaded", () => {
     let x = Number(squares[index].getAttribute("x"));
     let y = Number(squares[index].getAttribute("y"));
     data[x][y].owner = passedPlayer;
-    let vertical = [data[x][y]];
-    let horizontal = [data[x][y]];
-    let firstDiagonal = [data[x][y]];
-    let secondDiagonal = [data[x][y]];
+    let all = {
+      vertical: [data[x][y]],
+      horizontal: [data[x][y]],
+      firstDiagonal: [data[x][y]],
+      secondDiagonal: [data[x][y]],
+    };
 
-    let top = data[x][y].getDirection([1, 0], data, passedPlayer, vertical);
-    let bottom = data[x][y].getDirection([-1, 0], data, passedPlayer, vertical);
-    let left = data[x][y].getDirection([0, 1], data, passedPlayer, horizontal);
-    let right = data[x][y].getDirection(
-      [0, -1],
-      data,
-      passedPlayer,
-      horizontal
-    );
-    let topLeft = data[x][y].getDirection(
-      [1, 1],
-      data,
-      passedPlayer,
-      firstDiagonal
-    );
-    let bottomRight = data[x][y].getDirection(
-      [-1, -1],
-      data,
-      passedPlayer,
-      firstDiagonal
-    );
-    let topRight = data[x][y].getDirection(
-      [1, -1],
-      data,
-      passedPlayer,
-      secondDiagonal
-    );
-    let bottomLeft = data[x][y].getDirection(
-      [-1, 1],
-      data,
-      passedPlayer,
-      secondDiagonal
-    );
+    let directionSums = {};
+
+    const calculateDirectionSums = (data, passedPlayer) => {
+      const allDirectionsKeys = Object.keys(directions);
+      const allDirectionsValues = Object.values(directions);
+      allDirectionsKeys.forEach((element, i) => {
+        directionSums[element] = data[x][y].getDirection(
+          element,
+          data,
+          passedPlayer,
+          all[allDirectionsValues[i][2]]
+        );
+        console.warn(all[allDirectionsValues[i][2]]);
+      });
+    };
+
+    calculateDirectionSums(data, passedPlayer);
+
+    let {
+      top,
+      bottom,
+      left,
+      right,
+      topLeft,
+      topRight,
+      bottomLeft,
+      bottomRight,
+    } = directionSums;
+
+    let { vertical, horizontal, firstDiagonal, secondDiagonal } = all;
+
     displayWin(
       top + bottom + 1,
       left + right + 1,
