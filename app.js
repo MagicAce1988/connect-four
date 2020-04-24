@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const directions = {
     top: [1, 0, "vertical"],
     bottom: [-1, 0, "vertical"],
-    left: [0, 1, "hortizontal"],
-    right: [0, -1, "hortizontal"],
+    left: [0, 1, "horizontal"],
+    right: [0, -1, "horizontal"],
     topLeft: [1, 1, "firstDiagonal"],
     bottomRight: [-1, -1, "firstDiagonal"],
     topRight: [1, -1, "secondDiagonal"],
@@ -29,11 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     getDirection(direction, grid, owner, all) {
       const dir = directions[direction];
-      console.log(dir);
       let next = (grid[this.x + dir[0]] || [])[this.y + dir[1]];
       if (!next || owner !== next.owner) return 0;
       all.push(next);
-      return 1 + next.getDirection(dir, grid, owner, all);
+      return 1 + next.getDirection(direction, grid, owner, all);
     }
   }
 
@@ -95,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let directionSums = {};
 
-    const calculateDirectionSums = (data, passedPlayer) => {
+    const calculateDirectionSums = (data, passedPlayer, x, y) => {
       const allDirectionsKeys = Object.keys(directions);
       const allDirectionsValues = Object.values(directions);
       allDirectionsKeys.forEach((element, i) => {
@@ -105,11 +104,10 @@ document.addEventListener("DOMContentLoaded", () => {
           passedPlayer,
           all[allDirectionsValues[i][2]]
         );
-        console.warn(all[allDirectionsValues[i][2]]);
       });
     };
 
-    calculateDirectionSums(data, passedPlayer);
+    calculateDirectionSums(data, passedPlayer, x, y);
 
     let {
       top,
